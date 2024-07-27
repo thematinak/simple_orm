@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface IdColumn {
     public String value() default "id";
+
+    public boolean autoIncrement() default true;
 }

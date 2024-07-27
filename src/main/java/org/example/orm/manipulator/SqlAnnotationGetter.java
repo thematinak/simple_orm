@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 
 public class SqlAnnotationGetter {
 
-    public static <T> Table getTableAnnot(Class<T> clazz) {
+    protected static <T> Table getTableAnnot(Class<T> clazz) {
         Table table = clazz.getAnnotation(Table.class);
         if (table == null) {
             throw new RuntimeException("Class " + clazz + "does not have a Table annotation");
@@ -16,7 +16,7 @@ public class SqlAnnotationGetter {
         return table;
     }
 
-    public static Table getTableAnnot(Object entity) {
+    protected static Table getTableAnnot(Object entity) {
         Table table = entity.getClass().getAnnotation(Table.class);
         if (table == null) {
             throw new RuntimeException("Class " + entity.getClass() + "does not have a Table annotation");
@@ -24,15 +24,23 @@ public class SqlAnnotationGetter {
         return table;
     }
 
-    public static String getColumnName(Field field, IdColumn idColumn) {
+    protected static String getColumnName(Field field, IdColumn idColumn) {
         return idColumn.value();
     }
 
-    public static String getColumnName(Field field, Column column) {
+    protected static String getColumnName(Field field, Column column) {
         if (column.value().isEmpty()) {
             return field.getName();
         } else {
             return column.value();
+        }
+    }
+
+    protected static Object getDataFromField(Field field, Object entity) {
+        try {
+            return field.get(entity);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }

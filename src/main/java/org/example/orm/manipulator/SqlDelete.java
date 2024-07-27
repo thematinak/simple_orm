@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.lang.reflect.Field;
 
+import static org.example.orm.manipulator.SqlAnnotationGetter.getDataFromField;
+
 public class SqlDelete {
 
     public static void delete(JdbcTemplate jdbcTemplate, Object entity) {
@@ -28,13 +30,5 @@ public class SqlDelete {
 
         String sql = "Delete from " + table.value() + " where " + idColumnName + " = ?";
         jdbcTemplate.update(sql, idVal);
-    }
-
-    private static Object getDataFromField(Field field, Object entity) {
-        try {
-            return field.get(entity);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

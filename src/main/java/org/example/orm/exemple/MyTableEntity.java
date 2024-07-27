@@ -20,6 +20,12 @@ public class MyTableEntity {
     @Column("boolean_col")
     public boolean aBoolean;
 
+    @Column("abc_id")
+    public int abc1;
+
+    @Column("abc_id2")
+    public int abc2;
+
     @Join(op = {CritOp.EQ}, left = {"abc_id"}, right = {"id"})
     public AbcExampleEntity abcExampleEntity;
 
