@@ -1,8 +1,7 @@
 package org.example;
 
-import org.example.orm.exemple.AbcExampleEntity;
 import org.example.orm.exemple.MyTableEntity;
-import org.example.orm.selector.SqlSelector;
+import org.example.orm.manipulator.SqlSelector;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 

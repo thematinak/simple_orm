@@ -1,4 +1,4 @@
-package org.example.orm.selector;
+package org.example.orm.manipulator;
 
 import org.example.orm.annotation.Column;
 import org.example.orm.annotation.IdColumn;
@@ -17,13 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.example.orm.manipulator.SqlAnnotationGetter.getColumnName;
+
 public class SqlSelector {
 
     public static <T> Optional<T> getEntityById(JdbcTemplate jdbcTemplate, Class<T> clazz, int id) {
-        Table table = clazz.getAnnotation(Table.class);
-        if (table == null) {
-            throw new RuntimeException("Class " + clazz + "does not have a Table annotation");
-        }
+        Table table = SqlAnnotationGetter.getTableAnnot(clazz);
 
         List<String> selectPart = new ArrayList<>();
         List<String> fromPart = new ArrayList<>();
@@ -41,17 +40,14 @@ public class SqlSelector {
         for (Field f : clazz.getFields()) {
             IdColumn idColumn = f.getAnnotation(IdColumn.class);
             if (idColumn != null) {
-                where = " Where t0." + idColumn.value() + " = ?";
+                where = " Where t0." + getColumnName(f, idColumn) + " = ?";
                 break;
             }
         }
 
         String sql = select + from + where;
-
         RowMapper<T> rowMapper = createRowMapper(clazz);
-
         List<T> resList = jdbcTemplate.query(sql, rowMapper, id);
-        System.out.println(sql);
 
         return resList.stream().findFirst();
 
@@ -96,12 +92,12 @@ public class SqlSelector {
         for (Field f : clazz.getFields()) {
             Column column = f.getAnnotation(Column.class);
             if (column != null) {
-                select.add("t" + tableCount + '.' + column.value());
+                select.add("t" + tableCount + '.' + getColumnName(f, column));
                 continue;
             }
             IdColumn idColumn = f.getAnnotation(IdColumn.class);
             if (idColumn != null) {
-                select.add("t" + tableCount + '.' + idColumn.value());
+                select.add("t" + tableCount + '.' + getColumnName(f, idColumn));
                 continue;
             }
             Join join = f.getAnnotation(Join.class);
@@ -111,10 +107,7 @@ public class SqlSelector {
                 }
                 int nextTableCount = ctx.tableNum + 1;
                 Class<?> nextTableType = f.getType();
-                Table nextTable = nextTableType.getAnnotation(Table.class);
-                if (nextTable == null) {
-                    throw new RuntimeException("Class " + nextTableType + "does not have a Table annotation");
-                }
+                Table nextTable = SqlAnnotationGetter.getTableAnnot(nextTableType);
 
                 StringBuilder sqlJoin = new StringBuilder("Join ");
                 sqlJoin.append(nextTable.value());
@@ -130,7 +123,6 @@ public class SqlSelector {
                 from.add(sqlJoin.toString());
                 ctx.tableNum += 1;
                 buildSqlParts(select, from, ctx, nextTableType);
-                continue;
             }
 
         }
@@ -153,7 +145,7 @@ public class SqlSelector {
                 f.set(entity, rs.getTimestamp(ctx.colNum));
             } else {
                 if (type.getAnnotation(Table.class) == null) {
-                    throw new RuntimeException("Unsuported type: " + f.getType());
+                    throw new RuntimeException("Unsupported type: " + f.getType());
                 } else {
                     f.set(entity, mapEntity(type, rs, ctx));
                     ctx.colNum -= 1; // need to sub because adding next
