@@ -13,22 +13,22 @@ public class AbcExampleEntity {
     public int id;
 
     @Column("col1")
-    public int vek;
+    public int age;
 
     @Column("col2")
-    public String meno;
+    public String name;
 
     @Column("col3")
-    public Timestamp cas;
+    public Timestamp time;
 
 
     @Override
     public String toString() {
         return "AbcExample{" +
                 "id=" + id +
-                ", vek=" + vek +
-                ", meno='" + meno + '\'' +
-                ", cas=" + cas +
+                ", vek=" + age +
+                ", meno='" + name + '\'' +
+                ", cas=" + time +
                 '}';
     }
 }

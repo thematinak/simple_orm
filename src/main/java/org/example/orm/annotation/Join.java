@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Join {
-    public CritOp[] op();
-    public String[] left();
-    public String[] right();
+    CritOp[] op();
+    String[] left();
+    String[] right();
 }

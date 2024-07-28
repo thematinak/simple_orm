@@ -2,14 +2,11 @@ package org.example;
 
 import org.example.orm.exemple.MyTableEntity;
 import org.example.orm.manipulator.SqlSelector;
+import org.example.orm.manipulator.SqlUpdate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class Main {
@@ -27,11 +24,16 @@ public class Main {
     public static void main(String[] args) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(mysqlDataSource());
         Optional<MyTableEntity> res = SqlSelector.getEntityById(jdbcTemplate, MyTableEntity.class, 1);
+        MyTableEntity entity = res.orElseThrow();
+        entity.anInt = 9;
+        entity.aBoolean = false;
+        entity.astring = "Changed value";
+        SqlUpdate.update(jdbcTemplate, entity);
 //        Optional<AbcExampleEntity> res = SqlSelector.getEntityById(jdbcTemplate, AbcExampleEntity.class, 2);
 
 //        MyTableEntity myTableEntity = new MyTableEntity();
 //        myTableEntity.anInt = 5;
-//        myTableEntity.astring = "testik";
+//        myTableEntity.astring = "test_value";
 //        myTableEntity.aBoolean = true;
 //        myTableEntity.date = Date.valueOf(LocalDate.now());
 //        myTableEntity.abc1 = 2;

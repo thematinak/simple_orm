@@ -9,13 +9,15 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SqlInsert {
+public class SqlUpdate {
 
-    public static void save(JdbcTemplate jdbcTemplate, Object entity) {
+    public static void update(JdbcTemplate jdbcTemplate, Object entity) {
         Table table = SqlAnnotationGetter.getTableAnnot(entity);
 
         List<String> fieldsNames = new ArrayList<>();
         List<Object> values = new ArrayList<>();
+        Object id = null;
+        String idName = null;
         for(Field field : entity.getClass().getFields()) {
             Column column = field.getAnnotation(Column.class);
             Object val = null;
@@ -25,9 +27,10 @@ public class SqlInsert {
                 columnName = SqlAnnotationGetter.getColumnName(field, column);
             }
             IdColumn idColumn = field.getAnnotation(IdColumn.class);
-            if (idColumn != null && !idColumn.autoIncrement()) {
-                val = SqlAnnotationGetter.getDataFromField(field, entity);
-                columnName = SqlAnnotationGetter.getColumnName(field, idColumn);
+            if (idColumn != null) {
+                id = SqlAnnotationGetter.getDataFromField(field, entity);
+                idName = SqlAnnotationGetter.getColumnName(field, idColumn);
+
             }
             if (val != null) {
                 values.add(val);
@@ -35,8 +38,9 @@ public class SqlInsert {
             }
         }
 
-        String questions = String.join(",", values.stream().map(x-> "?").toList());
-        String sql = "Insert into "  + table.value() + "(" + String.join(", ", fieldsNames)+") values (" + questions + ")";
+        String setValues = String.join(",", fieldsNames.stream().map(x -> x + " = ?").toList());
+        String sql = "Update " + table.value() + " Set " + setValues + " Where " + idName + " = ?";
+        values.add(id);
         jdbcTemplate.update(sql, values.toArray());
     }
 }
